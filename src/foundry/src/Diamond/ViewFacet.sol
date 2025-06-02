@@ -21,7 +21,22 @@ contract viewFacet {
         DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
         return ds.userNftIds[_user];
     }
+    /////
+    function getLoanByAccountId(
+    uint256 accountTokenId
+    ) external view returns (DiamondStorage.LoanData memory) {
+    DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
+    uint256 loanId = ds.accountToLoans[accountTokenId];
+    return ds.loans[loanId];
+}
 
+    function getUserLoans(
+    address user
+    ) external view returns (uint256[] memory) {
+    DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
+    return ds.userLoans[user];
+}
+/////
     function getUserInvestments(
         address _user
     )
