@@ -16,7 +16,7 @@ contract AutomationLoan is AutomationCompatibleInterface {
     error InsufficientRepayment();
     error InvalidUserAccount();
     error Unauthorized();
-
+    error TransferFailed();
     // Events stay in this contract as they're specific to automation
     event LoanCreated(
         uint256 indexed loanId,
@@ -53,60 +53,87 @@ contract AutomationLoan is AutomationCompatibleInterface {
     ) external {
         DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
 
-        // Use ViewFacet to validate user account
-        (, , , , address accountOwner) = vf.getUserNFTDetail(msg.sender, accountTokenId);
-        if (accountOwner != msg.sender) {
-            revert InvalidUserAccount();
-        }
-
-        // Use constants from DiamondStorage
-        if (duration < DiamondStorage.MIN_LOAN_DURATION || 
-            duration > DiamondStorage.MAX_LOAN_DURATION) {
-            revert InvalidLoanDuration();
-        }
-
-        // Check loan existence using ViewFacet
-        (bool isActive, , , , ) = vf.getUserNFTDetail(msg.sender, tokenId);
-        if (isActive) {
-            revert LoanAlreadyExists();
-        }
-
-        // Transfer assets
-        require(nftContract.ownerOf(tokenId) == msg.sender, "Not token owner");
-
-        nftContract.transferFrom(msg.sender, address(this), tokenId);
-
-        require(usdcToken.allowance(msg.sender, address(this)) >= amount, "Insufficient USDC allowance");
-
-        usdcToken.transferFrom(msg.sender, address(this), amount);
-        // Generate unique loan ID
-        uint256 loanId = ++ds.currentLoanId;
-
-        // Use ViewFacet for calculations
-        uint256 interestRate = vf.calculateInterestRate(duration);
-        uint256 totalDebt = vf.calculateTotalDebt(amount, interestRate, duration);
-
-        // Store loan data
-        ds.loans[tokenId] = DiamondStorage.LoanData({
-            loanId: loanId,
-            loanAmount: amount,
-            startTime: block.timestamp,
-            duration: duration,
-            interestRate: interestRate,
-            totalDebt: totalDebt,
-            isActive: true,
-            borrower: msg.sender,
-            userAccountTokenId: accountTokenId
-        });
-
-        // Update tracking
-        ds.userLoans[msg.sender].push(loanId);
-        ds.accountToLoans[accountTokenId] = loanId;
-        ds.totalActiveLoans++;
-        ds.totalUSDCLocked += amount;
-
-        emit LoanCreated(loanId, msg.sender, tokenId, accountTokenId, amount);
+        // CHECKS
+    // Validate user account
+    (, , , , address accountOwner) = vf.getUserNFTDetail(msg.sender, accountTokenId);
+    if (accountOwner != msg.sender) {
+        revert InvalidUserAccount();
     }
+
+    // Validate duration
+    if (duration < DiamondStorage.MIN_LOAN_DURATION || 
+        duration > DiamondStorage.MAX_LOAN_DURATION) {
+        revert InvalidLoanDuration();
+    }
+
+    // Check loan existence
+    (bool isActive, , , , ) = vf.getUserNFTDetail(msg.sender, tokenId);
+    if (isActive) {
+        revert LoanAlreadyExists();
+    }
+
+    // Check ownership and allowance
+    if (nftContract.ownerOf(tokenId) != msg.sender) {
+        revert Unauthorized();
+    }
+    if (usdcToken.allowance(msg.sender, address(this)) < amount) {
+        revert InsufficientCollateral();
+    }
+
+    // EFFECTS
+    // Generate loan ID and calculate terms
+    uint256 loanId = ++ds.currentLoanId;
+    uint256 interestRate = vf.calculateInterestRate(duration);
+    uint256 totalDebt = vf.calculateTotalDebt(amount, interestRate, duration);
+
+    // Update storage state
+    ds.loans[tokenId] = DiamondStorage.LoanData({
+        loanId: loanId,
+        loanAmount: amount,
+        startTime: block.timestamp,
+        duration: duration,
+        interestRate: interestRate,
+        totalDebt: totalDebt,
+        isActive: true,
+        borrower: msg.sender,
+        userAccountTokenId: accountTokenId
+    });
+
+    ds.userLoans[msg.sender].push(loanId);
+    ds.accountToLoans[accountTokenId] = loanId;
+    ds.totalActiveLoans++;
+    ds.totalUSDCLocked += amount;
+
+    // INTERACTIONS
+    bool success;
+    try nftContract.transferFrom(msg.sender, address(this), tokenId) {
+        try usdcToken.transferFrom(address(this), msg.sender, amount) {
+            success = true;
+        } catch {
+            // Revert NFT transfer if USDC transfer fails
+            nftContract.transferFrom(address(this), msg.sender, tokenId);
+            success = false;
+        }
+    } catch {
+        success = false;
+    }
+
+    if (!success) {
+        // Revert all state changes
+        delete ds.loans[tokenId];
+        if (ds.userLoans[msg.sender].length > 0) {
+            ds.userLoans[msg.sender].pop();
+        }
+        delete ds.accountToLoans[accountTokenId];
+        ds.totalActiveLoans--;
+        ds.totalUSDCLocked -= amount;
+        ds.currentLoanId--;
+        revert TransferFailed();
+    }
+
+    emit LoanCreated(loanId, msg.sender, tokenId, accountTokenId, amount);
+}
+
 
     function checkUpkeep(bytes calldata) 
         external 
