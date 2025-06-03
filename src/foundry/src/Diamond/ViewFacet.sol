@@ -36,6 +36,60 @@ contract viewFacet {
     DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
     return ds.userLoans[user];
 }
+
+    function calculateInterestRate(
+    uint256 duration
+) public pure returns (uint256) {
+    // Base interest rate is 5% (500 basis points)
+    uint256 baseRate = DiamondStorage.BASE_INTEREST_RATE;
+    
+    // Additional rate based on duration (longer duration = higher rate)
+    // For each month over 30 days, add 0.5% (50 basis points)
+    uint256 additionalRate = ((duration - DiamondStorage.MIN_LOAN_DURATION) * 50) / 30 days;
+    
+    // Cap the maximum additional rate at 5% (500 basis points)
+    if (additionalRate > 500) {
+        additionalRate = 500;
+    }
+    
+    return baseRate + additionalRate;
+}
+
+// Also add the calculateTotalDebt function since it's used in AutomationLoan
+function calculateTotalDebt(
+    uint256 amount,
+    uint256 rate,
+    uint256 duration
+) public pure returns (uint256) {
+    // Calculate interest: (amount * rate * duration) / (10000 * 365 days)
+    // rate is in basis points (100 = 1%)
+    uint256 interest = (amount * rate * duration) / (10000 * 365 days);
+    return amount + interest;
+}
+function calculateTotalCurrentDebt(
+    uint256 loanId
+) public view returns (uint256) {
+    DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
+    DiamondStorage.LoanData memory loan = ds.loans[loanId];
+    
+    if (!loan.isActive) {
+        return 0;
+    }
+
+    // Calculate time elapsed since loan start
+    uint256 timeElapsed = block.timestamp - loan.startTime;
+    
+    // If loan is past duration, return total debt
+    if (timeElapsed >= loan.duration) {
+        return loan.totalDebt;
+    }
+    
+    // Calculate current debt based on elapsed time
+    uint256 currentInterest = (loan.loanAmount * loan.interestRate * timeElapsed) / 
+                            (10000 * 365 days);
+    
+    return loan.loanAmount + currentInterest;
+}
 /////
     function getUserInvestments(
         address _user

@@ -2,10 +2,9 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
-# remappings = ["@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/"]
 remappings = [
-    "@chainlink/=lib/chainlink/",
-    "@openzeppelin/=lib/openzeppelin-contracts/"
+    "@chainlink/=lib/chainlink-brownie-contracts/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "forge-std/=lib/forge-std/src/"
 ]
+auto_detect_remappings = true
