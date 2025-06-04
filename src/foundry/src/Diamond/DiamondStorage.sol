@@ -40,6 +40,7 @@ library DiamondStorage {
         uint256 totalActiveLoans;
         uint256 totalUSDCLocked;
         uint256 currentLoanId;
+         uint256 totalBufferLocked;
         //////
     }
         ///// Loan data Structure
@@ -53,6 +54,10 @@ library DiamondStorage {
         bool isActive;
         address borrower;
         uint256 userAccountTokenId; // User's account NFT token ID
+        uint256 bufferAmount;      // Total buffer collected
+        uint256 remainingBuffer;   // Current buffer balance
+        uint256 lastPaymentTime;   // Track last payment timestamp
+        bool[] monthlyPayments;    // Track monthly payments status
         /////
     }
 
