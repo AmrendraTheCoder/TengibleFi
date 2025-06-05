@@ -22,12 +22,24 @@ contract viewFacet {
         return ds.userNftIds[_user];
     }
     /////
-    function getLoanByAccountId(
+    function getLoanByAccountId(  // This function retrieves the loan data for a specific account token ID
     uint256 accountTokenId
     ) external view returns (DiamondStorage.LoanData memory) {
     DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
-    uint256 loanId = ds.accountToLoans[accountTokenId];
-    return ds.loans[loanId];
+    uint256 generatedLoanId = ds.accountToLoans[accountTokenId];
+    if (generatedLoanId == 0) {
+        revert DiamondStorage.LoanDataNotFoundForLoanId(); // Or a more specific error
+    }
+    uint256 collateralTokenId = ds.loanIdToCollateralTokenId[generatedLoanId];
+    if (collateralTokenId == 0) {
+        revert DiamondStorage.LoanDataNotFoundForLoanId(); // Or a more specific error
+    }
+    DiamondStorage.LoanData memory loan = ds.loans[collateralTokenId];
+    // Integrity check
+    if (loan.loanId != generatedLoanId || !loan.isActive) {
+         revert DiamondStorage.LoanIdMismatch(); // Or LoanNotActive / DataNotFound
+    }
+    return loan;
 }
 
     function getUserLoans(
@@ -67,12 +79,16 @@ function calculateTotalDebt(
     return amount + interest;
 }
 function calculateTotalCurrentDebt(
-    uint256 loanId
+    uint256 generatedLoanId
 ) public view returns (uint256) {
     DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
-    DiamondStorage.LoanData memory loan = ds.loans[loanId];
-    
-    if (!loan.isActive) {
+    uint256 collateralTokenId = ds.loanIdToCollateralTokenId[generatedLoanId];
+    if (collateralTokenId == 0) {
+        return 0; // Or revert, depending on desired behavior for non-existent loanId
+    }
+    DiamondStorage.LoanData memory loan = ds.loans[collateralTokenId];
+
+    if (!loan.isActive || loan.loanId != generatedLoanId) { // Check if the loan is active and doesn't match the generatedLoanId
         return 0;
     }
 

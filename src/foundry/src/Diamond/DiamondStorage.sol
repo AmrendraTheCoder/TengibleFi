@@ -13,7 +13,25 @@ library DiamondStorage {
     uint256 constant LIQUIDATION_THRESHOLD = 8000; // 80% in basis points
     //////
 
-    struct UserAccount {
+    // --- SHARED CUSTOM ERRORS ---
+    // Errors originally from AutomationLoan.sol, now shared:
+    error InvalidLoanDuration();
+    error InsufficientCollateral(); // Note: This name is used in AutomationLoan
+    error LoanAlreadyExists();  
+    error LoanNotActive();
+    error InsufficientRepayment();
+    error InvalidUserAccount();
+    error Unauthorized();
+    error TransferFailed();
+    error InsufficientBuffer();
+    error PaymentNotDue();
+
+    // Errors added for internal consistency in AutomationLoan.sol:
+    error LoanIdMismatch();
+    error LoanDataNotFoundForLoanId();
+
+
+    struct UserAccount {   // For AuthUser facet or general user account info
         bool isAuth;
         uint256 amount;
         uint256 duration;
@@ -35,6 +53,7 @@ library DiamondStorage {
 
         /////Loan automation state
         mapping(uint256 => LoanData) loans; // NFT ID => Loan Data
+        mapping(uint256 => uint256) loanIdToCollateralTokenId; // Loan ID => Collateral Token ID
         mapping(address => uint256[]) userLoans; // User => Array of their loan IDs
         mapping(uint256 => uint256) accountToLoans; // Account TokenId => Loan ID
         uint256 totalActiveLoans;

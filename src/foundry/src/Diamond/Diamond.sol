@@ -35,8 +35,17 @@ contract Diamond {
     // Find facet for function that is called and execute the
     // function if a facet is found and return any value.
     fallback() external payable {
-        LibDiamond.DiamondStorage storage ds;
-        bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION;
+        LibDiamond.DiamondStorage storage ds; // This is LibDiamond's internal struct for facet/selector mapping
+
+        bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION; // This is the slot for LibDiamond's storage
+
+        // It's important to distinguish LibDiamond.DiamondStorage (for routing) 
+
+        // from your project-specific DiamondStorage.VaultState (for application state).
+
+        // The delegatecall mechanism ensures that when AutomationLoan.sol calls DiamondStorage.getStorage(),
+
+        // it gets your project's VaultState from its designated slot.
         assembly {
             ds.slot := position
         }
