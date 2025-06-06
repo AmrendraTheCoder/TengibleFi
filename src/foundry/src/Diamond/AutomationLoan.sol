@@ -40,22 +40,22 @@ contract AutomationLoan is AutomationCompatibleInterface {
     ) external {
         DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
 
-        // CHECKS - Moved validation to internal function to reduce stack variables
-        _validateLoanCreation(tokenId, accountTokenId, duration, ds);
+        // CHECKS - Use viewFacet's validation
+        vf.validateLoanCreationView(msg.sender, tokenId, accountTokenId, duration);
 
-        // Calculate interest and buffer - moved to internal function to reduce stack variables
-        (uint256 totalDebt, uint256 bufferAmount) = _calculateLoanTerms(amount, duration);
+        // Calculate interest and buffer - in ViewFacet
+        (uint256 totalDebt, uint256 bufferAmount) = vf.calculateLoanTerms(amount, duration);
 
         // Check ownership and allowance
-        if (nftContract.ownerOf(tokenId) != msg.sender) {
+        if (nftContract.ownerOf(tokenId) != msg.sender) { // Check if the user owns the NFT because  Only the owner of the NFT should be able to lock it
             revert DiamondStorage.Unauthorized();
         }
-        if (usdcToken.allowance(msg.sender, address(this)) < (amount + bufferAmount)) {
+        if (usdcToken.allowance(msg.sender, address(this)) < (amount + bufferAmount)) {   // Check if the user has approved enough USDC for the contract, more than the amount + buffer
             revert DiamondStorage.InsufficientCollateral();
         }
 
         // EFFECTS - moved loan creation to internal function to reduce stack variables
-        uint256 loanId = _createLoanStorage(tokenId, accountTokenId, duration, amount, totalDebt, bufferAmount, ds);
+        uint256 loanId = _createLoanId(tokenId, accountTokenId, duration, amount, totalDebt, bufferAmount, ds);
 
         // INTERACTIONS - simplified transfer logic to reduce stack variables
         _handleTransfers(tokenId, amount, bufferAmount, loanId, accountTokenId, ds);
@@ -63,44 +63,8 @@ contract AutomationLoan is AutomationCompatibleInterface {
         emit LoanCreated(loanId, msg.sender, tokenId, accountTokenId, amount);
     }
 
-    // Internal function to validate loan creation - reduces stack depth in main function
-    function _validateLoanCreation(
-        uint256 tokenId,
-        uint256 accountTokenId,
-        uint256 duration,
-        DiamondStorage.VaultState storage ds
-    ) internal view {
-        // Validate user account
-        (, , , , address accountOwner) = vf.getUserNFTDetail(msg.sender, accountTokenId);
-        if (accountOwner != msg.sender) {
-            revert DiamondStorage.InvalidUserAccount(); // Using error from DiamondStorage
-        }
-
-        // Validate duration
-        if (duration < DiamondStorage.MIN_LOAN_DURATION || 
-            duration > DiamondStorage.MAX_LOAN_DURATION) {
-            revert DiamondStorage.InvalidLoanDuration(); // Using error from DiamondStorage
-        }
-        uint256 numberOfPaymentPeriods = duration / 30 days;
-        if (numberOfPaymentPeriods == 0) {
-            revert DiamondStorage.InvalidLoanDuration(); // Using error from DiamondStorage
-        }
-
-        // Check loan existence
-        if (ds.loans[tokenId].isActive) {
-            revert DiamondStorage.LoanAlreadyExists(); 
-        }
-    }
-
-    // Internal function to calculate loan terms - reduces stack depth in main function
-    function _calculateLoanTerms(uint256 amount, uint256 duration) internal view returns (uint256 totalDebt, uint256 bufferAmount) {
-        uint256 interestRate = vf.calculateInterestRate(duration);
-        totalDebt = vf.calculateTotalDebt(amount, interestRate, duration);
-        bufferAmount = totalDebt - amount; // Total interest amount as buffer
-    }
-
     // Internal function to create loan storage - reduces stack depth in main function
-    function _createLoanStorage(
+    function _createLoanId(
         uint256 tokenId,
         uint256 accountTokenId,
         uint256 duration,
@@ -113,8 +77,8 @@ contract AutomationLoan is AutomationCompatibleInterface {
         bool[] memory monthlyPayments = new bool[](duration / 30 days);
         
         // Generate loan ID and calculate terms
-        loanId = ++ds.currentLoanId;
-        uint256 interestRate = vf.calculateInterestRate(duration);
+        loanId = ++ds.currentLoanId;   //loanId is an auto-incremented integer that starts from zero (or one, depending on initialization) and increases by one each time a new loan is created.
+        uint256 interestRate = vf.calculateInterestRate(duration); 
 
         // Update storage state
         ds.loans[tokenId] = DiamondStorage.LoanData({
@@ -142,7 +106,6 @@ contract AutomationLoan is AutomationCompatibleInterface {
         ds.totalBufferLocked += bufferAmount;
     }
 
-    // Internal function to handle transfers - reduces stack depth in main function
     function _handleTransfers(
         uint256 tokenId,
         uint256 amount,
@@ -152,11 +115,11 @@ contract AutomationLoan is AutomationCompatibleInterface {
         DiamondStorage.VaultState storage ds
     ) internal {
         bool success = false;
-        try nftContract.transferFrom(msg.sender, address(this), tokenId) {
-                try usdcToken.transferFrom(msg.sender, address(this), amount + bufferAmount) {
+        try nftContract.transferFrom(msg.sender, address(this), tokenId) {           // Transfer NFT to contract
+                try usdcToken.transferFrom(msg.sender, address(this), amount + bufferAmount) {    // Transfer USDC to contract for 
                     success = true;
                 } catch {
-                    nftContract.transferFrom(address(this), msg.sender, tokenId);
+                    nftContract.transferFrom(address(this), msg.sender, tokenId);    // Revert NFT transfer if USDC transfer fails as we need to maintain ownership
                 }
             } catch {
                 // NFT transfer failed
@@ -233,31 +196,17 @@ contract AutomationLoan is AutomationCompatibleInterface {
         // Not decrementing ds.currentLoanId (the counter for LoanId)
     }
 
- // Internal helper to get loan data using the generated loanId
-    // This function resolves loanId to the collateral tokenId and then fetches the loan.
-    function _getLoanDataByLoanId(uint256 loanId_param) internal view returns (DiamondStorage.LoanData storage) {
-        DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
-        uint256 collateralTokenId = ds.loanIdToCollateralTokenId[loanId_param];
-        
-        if (collateralTokenId == 0) { 
-            revert DiamondStorage.LoanDataNotFoundForLoanId(); 
-        }
-        
-        DiamondStorage.LoanData storage loan = ds.loans[collateralTokenId]; // Access ds.loans using the resolved collateralTokenId
-
-        // Integrity check: ensure the loanId stored in the LoanData matches the loanId_param
-        if (loan.loanId != loanId_param || loan.borrower == address(0)) { 
-             revert DiamondStorage.LoanIdMismatch(); // Or LoanDataNotFoundForLoanId if data seems corrupt/cleared
-        }
-        return loan;
-    }
-
     // Automation functions
     function makeMonthlyPayment(uint256 loanId) external {
-        //DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();  //as we are using _getLoanDataByLoanId helper function, we don't need to access ds here
-        DiamondStorage.LoanData storage loan = _getLoanDataByLoanId(loanId);  //ds.loans is keyed by collateralTokenId, not loanId. The helper correctly finds collateralTokenId first.
-        
-         if (!loan.isActive) {
+        // Use vf._getLoanDataByLoanId instead of local function
+        DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
+        uint256 collateralTokenId = ds.loanIdToCollateralTokenId[loanId];
+        if (collateralTokenId == 0) {
+            revert DiamondStorage.LoanDataNotFoundForLoanId();
+        }
+        DiamondStorage.LoanData storage loan = ds.loans[collateralTokenId];
+
+        if (!loan.isActive) {
             revert DiamondStorage.LoanNotActive(); 
         }
         if (loan.borrower != msg.sender) {
@@ -272,8 +221,7 @@ contract AutomationLoan is AutomationCompatibleInterface {
             revert DiamondStorage.PaymentNotDue(); 
         }
         
-        uint256 monthlyAmount = loan.totalDebt / (loan.duration / 30 days);
-        // may be here uint256 monthlyAmount = loan.totalDebt / loan.monthlyPayments.length; 
+        uint256 monthlyAmount = loan.totalDebt / loan.monthlyPayments.length;
         
         // Transfer monthly payment
         usdcToken.transferFrom(msg.sender, address(this), monthlyAmount);
@@ -282,38 +230,16 @@ contract AutomationLoan is AutomationCompatibleInterface {
         loan.lastPaymentTime = block.timestamp;
     }
 
-    function checkUpkeep(bytes calldata) 
-        external 
-        view 
-        override 
-        returns (bool upkeepNeeded, bytes memory performData) 
+    function checkUpkeep(bytes calldata)
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory performData)
     {
-        DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
-        uint256 maxLoansToProcess = 50; // Limit to prevent excessive gas usage
-        uint256[] memory overdueLoanIds_perform = new uint256[](maxLoansToProcess); // Stores generated loanIds
-        uint256 count = 0;
+        uint256 maxLoansToProcess = 50;
+        (uint256[] memory overdueLoanIds_perform, uint256 count) = vf.getOverdueLoanIds(maxLoansToProcess);
 
-        for (uint256 i = 1; i <= ds.currentLoanId && count < maxLoansToProcess; i++) {
-            uint256 collateralTokenId = ds.loanIdToCollateralTokenId[i];
-            if (collateralTokenId == 0) {
-                continue; // No loan associated with this i or it was deleted
-            }
-
-            DiamondStorage.LoanData memory loan = ds.loans[collateralTokenId];
-            if (loan.isActive && loan.loanId == i) {
-                uint256 monthIndex = (block.timestamp - loan.startTime) / 30 days;
-                if (monthIndex < loan.monthlyPayments.length && 
-                    !loan.monthlyPayments[monthIndex] && 
-                    block.timestamp > loan.lastPaymentTime + 30 days) {
-                    overdueLoanIds_perform[count] = i;
-                    count++;
-                }
-            }
-        }
-         
-        
-        upkeepNeeded = count > 0; 
-        // Check if there are any overdue loans hence Prepare performData only if there are overdue loans
+        upkeepNeeded = count > 0;
         if (upkeepNeeded) {
             uint256[] memory finalOverdueLoanIds = new uint256[](count);
             for (uint j = 0; j < count; j++) {
@@ -321,7 +247,7 @@ contract AutomationLoan is AutomationCompatibleInterface {
             }
             performData = abi.encode(finalOverdueLoanIds);
         } else {
-        performData = bytes("");
+            performData = bytes("");
         }
     }
 

@@ -5,15 +5,15 @@ import {DiamondStorage} from "./DiamondStorage.sol";
 contract viewFacet {
     function getUserNFTDetail(
         address _user,
-        uint256 _tokenId
+        uint256 _accountTokenId
     ) public view returns (bool, uint256, uint256, uint256, address) {
         DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
         return (
-            ds.User[_user][_tokenId].isAuth,
-            ds.User[_user][_tokenId].amount,
-            ds.User[_user][_tokenId].duration,
-            ds.User[_user][_tokenId].rate,
-            ds.User[_user][_tokenId].tokenAddress
+            ds.User[_user][_accountTokenId].isAuth,
+            ds.User[_user][_accountTokenId].amount,
+            ds.User[_user][_accountTokenId].duration,
+            ds.User[_user][_accountTokenId].rate,
+            ds.User[_user][_accountTokenId].tokenAddress
         );
     }
 
@@ -139,5 +139,68 @@ function calculateTotalCurrentDebt(
         }
 
         return (tokenIds, amounts, authStatuses);
+    }
+
+   /////@karun's function for validating loan creation
+    function validateLoanCreationView(
+        address sender,
+        uint256 tokenId,
+        uint256 accountTokenId,
+        uint256 duration
+    ) external view {
+        DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
+        // Validate user account
+        (, , , , address accountOwner) = getUserNFTDetail(sender, accountTokenId);
+        if (accountOwner != sender) {
+            revert DiamondStorage.InvalidUserAccount();
+        }
+
+        // Validate duration
+        if (duration < DiamondStorage.MIN_LOAN_DURATION ||
+            duration > DiamondStorage.MAX_LOAN_DURATION) {
+            revert DiamondStorage.InvalidLoanDuration();
+        }
+        uint256 numberOfPaymentPeriods = duration / 30 days;
+        if (numberOfPaymentPeriods == 0) {
+            revert DiamondStorage.InvalidLoanDuration();
+        }
+
+        // Check loan existence
+        if (ds.loans[tokenId].isActive) {
+            revert DiamondStorage.LoanAlreadyExists();
+        }
+    }
+
+    function calculateLoanTerms(
+        uint256 amount,
+        uint256 duration
+    ) external pure returns (uint256 totalDebt, uint256 bufferAmount) {
+        uint256 interestRate = calculateInterestRate(duration);
+        totalDebt = calculateTotalDebt(amount, interestRate, duration);
+        bufferAmount = totalDebt - amount;
+    }
+
+    function getOverdueLoanIds(uint256 maxLoansToProcess) external view returns (uint256[] memory overdueLoanIds, uint256 count) {
+        DiamondStorage.VaultState storage ds = DiamondStorage.getStorage();
+        overdueLoanIds = new uint256[](maxLoansToProcess);
+        count = 0;
+        for (uint256 i = 1; i <= ds.currentLoanId && count < maxLoansToProcess; i++) {
+            uint256 collateralTokenId = ds.loanIdToCollateralTokenId[i];
+            if (collateralTokenId == 0) {
+                continue;
+            }
+            DiamondStorage.LoanData memory loan = ds.loans[collateralTokenId];
+            if (loan.isActive && loan.loanId == i) {
+                uint256 monthIndex = (block.timestamp - loan.startTime) / 30 days;
+                if (
+                    monthIndex < loan.monthlyPayments.length &&
+                    !loan.monthlyPayments[monthIndex] &&
+                    block.timestamp > loan.lastPaymentTime + 30 days
+                ) {
+                    overdueLoanIds[count] = i;
+                    count++;
+                }
+            }
+        }
     }
 }
