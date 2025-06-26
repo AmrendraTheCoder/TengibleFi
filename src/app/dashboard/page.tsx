@@ -221,7 +221,7 @@ function formatCompactNumber(num: number): string {
   if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
   if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
   return num.toString();
-}
+  }
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -254,11 +254,11 @@ export default function Dashboard() {
   // Get user authentication
   useEffect(() => {
     const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-      if (!user) {
+  if (!user) {
         redirect("/sign-in");
         return;
       }
@@ -300,7 +300,7 @@ export default function Dashboard() {
   };
 
   if (isLoading) {
-    return (
+  return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -358,7 +358,7 @@ export default function Dashboard() {
   // Improved verification status calculation
   const verifiedAssetsCount = filteredAssets.filter((asset) => {
     // More strict verification - check if asset has proper documentation and is actually verified
-    return (
+  return (
       asset.verification_status === "verified" &&
       asset.current_value > 0 &&
       asset.name &&
@@ -394,7 +394,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 space-y-6">
-      {/* Enhanced Header */}
+          {/* Enhanced Header */}
       <div className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-xl p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -410,7 +410,7 @@ export default function Dashboard() {
             </Badge>
             <Button
               onClick={handleRefresh}
-              variant="outline"
+                  variant="outline"
               className="bg-white/10 border-white/30 text-white hover:bg-white/20"
               disabled={portfolioLoading || marketLoading}
             >
@@ -457,115 +457,115 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Search and Filter Bar */}
+              {/* Search and Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search assets, loans, positions..."
+                  <Input
+                    placeholder="Search assets, loans, positions..."
             className="pl-10"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-          />
+                  />
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Calendar className="h-4 w-4 mr-2" />
-            Last 30 days
-          </Button>
-          {searchQuery && (
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filter
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Last 30 days
+                  </Button>
+                  {searchQuery && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setSearchQuery("")}
             >
               Clear Search
-            </Button>
-          )}
-        </div>
-      </div>
+                    </Button>
+                  )}
+                </div>
+              </div>
 
-      {/* Search Results Indicator */}
-      {searchQuery && (
+              {/* Search Results Indicator */}
+              {searchQuery && (
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">
-                  Search results for "{searchQuery}"
-                </span>
-              </div>
-              <div className="text-sm text-blue-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Search className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-900">
+                        Search results for "{searchQuery}"
+                      </span>
+                    </div>
+                    <div className="text-sm text-blue-700">
                 {filteredAssets.length + filteredLoans.length} items found
-              </div>
-            </div>
+                    </div>
+                  </div>
           </CardContent>
         </Card>
-      )}
+              )}
 
-      {/* Success Message */}
-      {showRefreshed && (
+              {/* Success Message */}
+              {showRefreshed && (
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-4">
-            <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              <div>
+                      <div>
                 <h3 className="font-semibold text-green-900">
-                  Portfolio Synced!
-                </h3>
+                          Portfolio Synced!
+                        </h3>
                 <p className="text-green-700 text-sm">
                   Your portfolio data has been updated across all connected
                   networks.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-      {/* Multi-Chain Info Banner */}
+              {/* Multi-Chain Info Banner */}
       <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
         <CardContent className="p-6">
-          <div className="flex gap-4">
-            <InfoIcon className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-blue-900">
-                TangibleFi: RWA Tokenization & NFT Lending
-              </p>
-              <p className="text-sm text-blue-700">
-                Upload documentation for real estate, commodities, and
-                equipment. Our verification team tokenizes them on the
-                blockchain as NFTs for collateralized lending.
-              </p>
-              <div className="flex items-center gap-4 mt-3">
-                <Badge
-                  variant="outline"
-                  className="bg-blue-50 text-blue-700 border-blue-200"
-                >
-                  {recentAssetsCount} NFTs minted this month
-                </Badge>
-                {upcomingPayments > 0 && (
-                  <Badge
-                    variant="outline"
-                    className="bg-yellow-50 text-yellow-700 border-yellow-200"
-                  >
-                    {upcomingPayments} EMI payments due soon
-                  </Badge>
-                )}
-                <Badge
-                  variant="outline"
-                  className="bg-emerald-50 text-emerald-700 border-emerald-200"
-                >
-                  Multi-Chain Ready
-                </Badge>
-              </div>
-            </div>
-          </div>
+                <div className="flex gap-4">
+                  <InfoIcon className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-blue-900">
+                      TangibleFi: RWA Tokenization & NFT Lending
+                    </p>
+                    <p className="text-sm text-blue-700">
+                      Upload documentation for real estate, commodities, and
+                      equipment. Our verification team tokenizes them on the
+                      blockchain as NFTs for collateralized lending.
+                    </p>
+                    <div className="flex items-center gap-4 mt-3">
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-50 text-blue-700 border-blue-200"
+                      >
+                        {recentAssetsCount} NFTs minted this month
+                      </Badge>
+                      {upcomingPayments > 0 && (
+                        <Badge
+                          variant="outline"
+                          className="bg-yellow-50 text-yellow-700 border-yellow-200"
+                        >
+                          {upcomingPayments} EMI payments due soon
+                        </Badge>
+                      )}
+                      <Badge
+                        variant="outline"
+                        className="bg-emerald-50 text-emerald-700 border-emerald-200"
+                      >
+                        Multi-Chain Ready
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
         </CardContent>
       </Card>
 
@@ -601,7 +601,7 @@ export default function Dashboard() {
                 Market
               </Button>
             </Link>
-          </div>
+              </div>
         </CardContent>
       </Card>
 
@@ -694,93 +694,93 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-green-600" />
-              Portfolio Performance
-              <Badge
-                variant="outline"
+                      Portfolio Performance
+                      <Badge
+                        variant="outline"
                 className="bg-green-50 text-green-700 border-green-200"
-              >
-                LIVE
-              </Badge>
-            </CardTitle>
-            <CardDescription>
-              Real-time asset value tracking across all networks
-            </CardDescription>
-          </CardHeader>
+                      >
+                        LIVE
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Real-time asset value tracking across all networks
+                    </CardDescription>
+                  </CardHeader>
           <CardContent>
             {/* Portfolio Chart Visualization */}
             <div className="relative h-64 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl border border-green-200 overflow-hidden">
-              {/* Chart Grid */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="grid grid-cols-12 grid-rows-8 h-full">
-                  {Array.from({ length: 96 }).map((_, i) => (
+                      {/* Chart Grid */}
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="grid grid-cols-12 grid-rows-8 h-full">
+                          {Array.from({ length: 96 }).map((_, i) => (
                     <div key={i} className="border border-gray-300/30"></div>
-                  ))}
-                </div>
-              </div>
+                          ))}
+                        </div>
+                      </div>
 
-              {/* Animated Chart Line */}
-              <svg className="absolute inset-0 w-full h-full">
-                <defs>
-                  <linearGradient
-                    id="chartGradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
+                      {/* Animated Chart Line */}
+                      <svg className="absolute inset-0 w-full h-full">
+                        <defs>
+                          <linearGradient
+                            id="chartGradient"
+                            x1="0%"
+                            y1="0%"
+                            x2="0%"
+                            y2="100%"
+                          >
                     <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
                     <stop offset="100%" stopColor="#10b981" stopOpacity="0.1" />
-                  </linearGradient>
-                </defs>
+                          </linearGradient>
+                        </defs>
 
-                <path
-                  d="M 0 180 Q 60 120 120 100 T 240 80 T 360 90 T 480 70"
-                  stroke="#10b981"
-                  strokeWidth="3"
-                  fill="none"
-                  strokeLinecap="round"
-                  className="opacity-100"
-                />
+                        <path
+                          d="M 0 180 Q 60 120 120 100 T 240 80 T 360 90 T 480 70"
+                          stroke="#10b981"
+                          strokeWidth="3"
+                          fill="none"
+                          strokeLinecap="round"
+                          className="opacity-100"
+                        />
 
-                <path
-                  d="M 0 180 Q 60 120 120 100 T 240 80 T 360 90 T 480 70 L 480 256 L 0 256 Z"
-                  fill="url(#chartGradient)"
+                        <path
+                          d="M 0 180 Q 60 120 120 100 T 240 80 T 360 90 T 480 70 L 480 256 L 0 256 Z"
+                          fill="url(#chartGradient)"
                   className="opacity-60"
-                />
+                        />
 
-                {[120, 240, 360, 480].map((x, i) => (
-                  <circle
-                    key={i}
-                    cx={x}
-                    cy={[100, 80, 90, 70][i]}
-                    r="4"
-                    fill="#10b981"
-                  />
-                ))}
-              </svg>
+                        {[120, 240, 360, 480].map((x, i) => (
+                          <circle
+                            key={i}
+                            cx={x}
+                            cy={[100, 80, 90, 70][i]}
+                            r="4"
+                            fill="#10b981"
+                          />
+                        ))}
+                      </svg>
 
-              {/* Chart Labels */}
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between text-xs text-gray-600">
-                <span>7d</span>
-                <span>30d</span>
-                <span>90d</span>
-                <span>1y</span>
-              </div>
+                      {/* Chart Labels */}
+                      <div className="absolute bottom-4 left-4 right-4 flex justify-between text-xs text-gray-600">
+                        <span>7d</span>
+                        <span>30d</span>
+                        <span>90d</span>
+                        <span>1y</span>
+                      </div>
 
-              {/* Current Value Display */}
-              <div className="absolute top-4 left-4">
+                      {/* Current Value Display */}
+                      <div className="absolute top-4 left-4">
                 <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 border border-green-200 shadow-md">
                   <p className="text-2xl font-bold text-green-600">
-                    ${netWorth.toLocaleString()}
-                  </p>
+                            ${netWorth.toLocaleString()}
+                          </p>
                   <p className="text-sm text-green-700 flex items-center gap-1">
                     {averageGrowth >= 0 ? (
-                      <TrendingUp className="h-3 w-3" />
+                            <TrendingUp className="h-3 w-3" />
                     ) : (
                       <TrendingDown className="h-3 w-3" />
                     )}
-                    Portfolio Value
-                  </p>
+                            Portfolio Value
+                          </p>
                   {averageGrowth !== 0 && (
                     <p
                       className={`text-xs ${averageGrowth >= 0 ? "text-green-600" : "text-red-600"}`}
@@ -789,36 +789,36 @@ export default function Dashboard() {
                       {averageGrowth.toFixed(1)}% avg growth
                     </p>
                   )}
-                </div>
-              </div>
-            </div>
+                        </div>
+                      </div>
+                    </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-600 font-medium">
-                  Total Assets
-                </p>
-                <p className="text-lg font-bold text-blue-900 flex items-center justify-center gap-1">
-                  <Building className="h-4 w-4" />
-                  {filteredAssets.length}
-                </p>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-3 gap-4 mt-6">
+                      <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-600 font-medium">
+                          Total Assets
+                        </p>
+                        <p className="text-lg font-bold text-blue-900 flex items-center justify-center gap-1">
+                          <Building className="h-4 w-4" />
+                          {filteredAssets.length}
+                        </p>
+                      </div>
+                      <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
                 <p className="text-sm text-purple-600 font-medium">Verified</p>
-                <p className="text-lg font-bold text-purple-900">
+                        <p className="text-lg font-bold text-purple-900">
                   {verifiedAssetsCount}
-                </p>
-              </div>
+                        </p>
+                      </div>
               <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
                 <p className="text-sm text-green-600 font-medium">
-                  Collateralized
-                </p>
+                          Collateralized
+                        </p>
                 <p className="text-lg font-bold text-green-900">
                   {collateralizedAssetsCount}
-                </p>
-              </div>
-            </div>
+                        </p>
+                      </div>
+                    </div>
           </CardContent>
         </Card>
 
@@ -828,12 +828,12 @@ export default function Dashboard() {
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-blue-600" />
               Market Overview
-              <Badge
-                variant="outline"
+                        <Badge
+                          variant="outline"
                 className="bg-blue-50 text-blue-700 border-blue-200"
-              >
+                        >
                 LIVE
-              </Badge>
+                        </Badge>
             </CardTitle>
             <CardDescription>
               Real-time cryptocurrency and RWA market data
@@ -875,7 +875,7 @@ export default function Dashboard() {
                       )}
                     </p>
                   </div>
-                </div>
+                      </div>
 
                 {/* Top Crypto Markets */}
                 <div className="space-y-2">
@@ -885,10 +885,10 @@ export default function Dashboard() {
                   {marketData.crypto_markets &&
                   marketData.crypto_markets.length > 0 ? (
                     marketData.crypto_markets.slice(0, 5).map((crypto) => (
-                      <div
+                            <div
                         key={crypto.id}
                         className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
-                      >
+                            >
                         <div className="flex items-center gap-2">
                           <img
                             src={crypto.image}
@@ -898,43 +898,43 @@ export default function Dashboard() {
                               e.currentTarget.src = "/placeholder-coin.png";
                             }}
                           />
-                          <div>
+                                <div>
                             <p className="font-medium text-sm">
                               {crypto.symbol}
-                            </p>
-                            <p className="text-xs text-gray-600">
+                                  </p>
+                                  <p className="text-xs text-gray-600">
                               {crypto.name}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
                           <p className="font-medium text-sm">
                             ${crypto.current_price.toFixed(2)}
-                          </p>
+                                </p>
                           <p
                             className={`text-xs ${crypto.price_change_percentage_24h >= 0 ? "text-green-600" : "text-red-600"}`}
                           >
                             {crypto.price_change_percentage_24h >= 0 ? "+" : ""}
                             {crypto.price_change_percentage_24h.toFixed(2)}%
                           </p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
+                              </div>
+                            </div>
+                          ))
+                        ) : (
                     <div className="text-center py-4">
                       <p className="text-sm text-gray-500">
                         No market data available
-                      </p>
+                            </p>
                       <p className="text-xs text-gray-400">
                         Check your internet connection
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      </div>
             )}
-          </CardContent>
-        </Card>
+                  </CardContent>
+                </Card>
 
         {/* Wallet Connection & Actions */}
         <Card>
@@ -942,11 +942,11 @@ export default function Dashboard() {
             <CardTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-purple-600" />
               Wallet & Actions
-            </CardTitle>
-            <CardDescription>
+                    </CardTitle>
+                    <CardDescription>
               Connect your wallet and manage your portfolio
-            </CardDescription>
-          </CardHeader>
+                    </CardDescription>
+                  </CardHeader>
           <CardContent className="space-y-4">
             {/* Wallet Status */}
             <div className="p-4 bg-gray-50 rounded-lg">
@@ -954,61 +954,61 @@ export default function Dashboard() {
                 <span className="text-sm font-medium">Wallet Status</span>
                 <Badge variant={isConnected ? "default" : "secondary"}>
                   {isConnected ? "Connected" : "Disconnected"}
-                </Badge>
-              </div>
+                      </Badge>
+                          </div>
               {isConnected ? (
                 <div>
                   <p className="text-sm text-gray-600">Address:</p>
                   <p className="font-mono text-xs bg-white p-2 rounded border">
                     {wallet.address?.slice(0, 6)}...{wallet.address?.slice(-4)}
-                  </p>
+                            </p>
                   <p className="text-sm text-gray-600 mt-2">
                     Balance: {parseFloat(wallet.balance || "0").toFixed(4)}{" "}
                     {wallet.network}
-                  </p>
-                </div>
+                            </p>
+                          </div>
               ) : (
                 <Button onClick={connectWallet} className="w-full">
                   <Wallet className="h-4 w-4 mr-2" />
                   Connect Wallet
                 </Button>
               )}
-            </div>
+                      </div>
 
-            {/* Quick Actions */}
+                      {/* Quick Actions */}
             <div className="space-y-2">
               <h4 className="font-semibold text-gray-900">Quick Actions</h4>
-              <Button
-                asChild
+                          <Button
+                            asChild
                 className="w-full justify-start"
                 variant="outline"
-              >
-                <Link href="/dashboard/assets/new">
+                          >
+                            <Link href="/dashboard/assets/new">
                   <Plus className="h-4 w-4 mr-2" />
                   Add New Asset
-                </Link>
-              </Button>
-              <Button
-                asChild
+                            </Link>
+                          </Button>
+                          <Button
+                            asChild
                 className="w-full justify-start"
-                variant="outline"
-              >
+                            variant="outline"
+                          >
                 <Link href="/dashboard/loans">
                   <CreditCard className="h-4 w-4 mr-2" />
                   View Loans
-                </Link>
-              </Button>
-              <Button
-                asChild
+                            </Link>
+                          </Button>
+                          <Button
+                            asChild
                 className="w-full justify-start"
                 variant="outline"
-              >
-                <Link href="/dashboard/cross-chain">
+                          >
+                            <Link href="/dashboard/cross-chain">
                   <Network className="h-4 w-4 mr-2" />
                   Cross-Chain Bridge
-                </Link>
-              </Button>
-            </div>
+                            </Link>
+                          </Button>
+              </div>
 
             {/* Health Status */}
             <div
@@ -1017,17 +1017,17 @@ export default function Dashboard() {
               <div className="flex items-center gap-2 mb-2">
                 <HealthIcon className={`h-5 w-5 ${healthStatus.color}`} />
                 <span className="font-medium">Portfolio Health</span>
-              </div>
+                      </div>
               <p className={`text-lg font-bold ${healthStatus.color}`}>
                 {healthStatus.status}
               </p>
               <p className="text-sm text-gray-600">
                 Health Ratio: {healthRatio.toFixed(2)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                      </div>
 
       {/* Recent Assets & Loans */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1035,23 +1035,23 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2">
                 <Building className="h-5 w-5 text-blue-600" />
                 Recent Assets
-              </div>
+                      </div>
               <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/assets">
                   View All
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
             {portfolioLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
+                      </div>
             ) : filteredAssets.length === 0 ? (
               <div className="text-center py-8">
                 <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -1060,63 +1060,63 @@ export default function Dashboard() {
                   <Link href="/dashboard/assets/new">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Your First Asset
-                  </Link>
-                </Button>
-              </div>
+                          </Link>
+                        </Button>
+                      </div>
             ) : (
               <div className="space-y-3">
                 {filteredAssets.slice(0, 5).map((asset) => (
-                  <div
-                    key={asset.id}
+                        <div
+                          key={asset.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
+                        >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <Building className="h-5 w-5 text-blue-600" />
-                      </div>
+                            </div>
                       <div>
                         <p className="font-medium text-sm">{asset.name}</p>
                         <p className="text-xs text-gray-600">
-                          {asset.asset_type} • {asset.location}
-                        </p>
-                      </div>
-                    </div>
+                              {asset.asset_type} • {asset.location}
+                            </p>
+                            </div>
+                          </div>
                     <div className="text-right">
                       <p className="font-medium text-sm">
-                        ${asset.current_value.toLocaleString()}
-                      </p>
+                              ${asset.current_value.toLocaleString()}
+                            </p>
                       <div className="flex items-center gap-1">
                         {getStatusBadge(asset.verification_status)}
-                      </div>
-                    </div>
+                          </div>
+                        </div>
                   </div>
                 ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
         {/* Recent Loans */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-green-600" />
                 Active Loans
               </div>
               <Button asChild variant="outline" size="sm">
-                <Link href="/dashboard/loans">
+                          <Link href="/dashboard/loans">
                   View All
                   <ChevronRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
+                          </Link>
+                        </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {portfolioLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-              </div>
+                      </div>
             ) : filteredLoans.length === 0 ? (
               <div className="text-center py-8">
                 <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -1124,42 +1124,42 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500 mt-2">
                   Use your verified assets as collateral to get loans
                 </p>
-              </div>
+                    </div>
             ) : (
               <div className="space-y-3">
                 {filteredLoans.slice(0, 5).map((loan) => (
-                  <div
-                    key={loan.id}
+                          <div
+                            key={loan.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
+                          >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                         <CreditCard className="h-5 w-5 text-green-600" />
-                      </div>
+                                </div>
                       <div>
                         <p className="font-medium text-sm">
                           Loan #{loan.id.slice(-8)}
                         </p>
                         <p className="text-xs text-gray-600">
                           {loan.interest_rate}% APR • {loan.blockchain}
-                        </p>
-                      </div>
-                    </div>
+                                </p>
+                              </div>
+                              </div>
                     <div className="text-right">
                       <p className="font-medium text-sm">
                         ${loan.outstanding_balance.toLocaleString()}
                       </p>
                       <div className="flex items-center gap-1">
                         {getStatusBadge(loan.loan_status)}
-                      </div>
-                    </div>
-                  </div>
+                              </div>
+                              </div>
+                            </div>
                 ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Recent Transactions */}
       <Card>
@@ -1173,24 +1173,24 @@ export default function Dashboard() {
             >
               LIVE
             </Badge>
-          </CardTitle>
+                  </CardTitle>
           <CardDescription>
             Latest blockchain transactions across all networks
-          </CardDescription>
-        </CardHeader>
+                  </CardDescription>
+                </CardHeader>
         <CardContent>
           {transactionsLoading ? (
             <div className="flex items-center justify-center h-32">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-            </div>
+                        </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-8">
               <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No recent transactions</p>
               <p className="text-sm text-gray-500 mt-2">
                 Connect your wallet to see transaction history
-              </p>
-            </div>
+                          </p>
+                        </div>
           ) : (
             <div className="space-y-3">
               {transactions.slice(0, 10).map((tx) => (
@@ -1209,39 +1209,39 @@ export default function Dashboard() {
                       ) : (
                         <Send className="h-5 w-5 text-blue-600" />
                       )}
-                    </div>
-                    <div>
+                        </div>
+                        <div>
                       <p className="font-medium text-sm capitalize">
                         {tx.type}
-                      </p>
-                      <p className="text-xs text-gray-600">
+                        </p>
+                        <p className="text-xs text-gray-600">
                         {tx.network} •{" "}
                         {formatTimeAgo(
                           new Date(tx.timestamp * 1000).toISOString()
                         )}
-                      </p>
-                    </div>
-                  </div>
+                        </p>
+                      </div>
+                        </div>
                   <div className="text-right">
                     <p className="font-medium text-sm">
                       {tx.type === "receive" ? "+" : "-"}
                       {parseFloat(tx.amount).toFixed(4)} {tx.symbol}
-                    </p>
-                    <Badge
+                                  </p>
+                              <Badge
                       variant={
                         tx.status === "confirmed" ? "default" : "secondary"
                       }
                       className="text-xs"
-                    >
+                              >
                       {tx.status}
-                    </Badge>
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
   );
 }

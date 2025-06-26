@@ -136,11 +136,11 @@ function useParallax(factor = 0.3) {
       }
 
       rafRef.current = requestAnimationFrame(() => {
-        if (ref.current) {
-          const scrolled = window.pageYOffset;
-          const rate = scrolled * factor;
-          setTransform(`translateY(${rate}px)`);
-        }
+      if (ref.current) {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * factor;
+        setTransform(`translateY(${rate}px)`);
+      }
       });
     };
 

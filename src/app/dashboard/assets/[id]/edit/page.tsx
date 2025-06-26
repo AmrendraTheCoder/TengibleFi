@@ -147,10 +147,10 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading asset...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading asset...</p>
+          </div>
         </div>
-      </div>
     );
   }
 
@@ -164,20 +164,20 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
-            <Link
-              href={`/dashboard/assets/${asset.id}`}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Asset
-            </Link>
-          </Button>
+                <Link
+                  href={`/dashboard/assets/${asset.id}`}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Asset
+                </Link>
+              </Button>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Edit className="h-4 w-4" />
             Editing: {asset.name}
           </div>
         </div>
-      </div>
+              </div>
 
       {/* Header Card */}
       <Card className="bg-gradient-to-br from-blue-600 to-purple-700 text-white border-0 shadow-xl">
@@ -207,55 +207,55 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-5 w-5 text-blue-600" />
                   Basic Information
-                </CardTitle>
+                  </CardTitle>
                 <CardDescription>
                   Update the fundamental details of your asset
-                </CardDescription>
-              </CardHeader>
+                  </CardDescription>
+                </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="name">Asset Name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      defaultValue={asset.name}
+                          <Input
+                            id="name"
+                            name="name"
+                            defaultValue={asset.name}
                       placeholder="Enter asset name"
-                      required
+                            required
                       className="focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
+                          />
+                        </div>
                   <div className="space-y-2">
                     <Label htmlFor="asset_type">Asset Type</Label>
                     <Select name="asset_type" defaultValue={asset.asset_type}>
                       <SelectTrigger className="focus:ring-blue-500 focus:border-blue-500">
-                        <SelectValue placeholder="Select asset type" />
-                      </SelectTrigger>
-                      <SelectContent>
+                              <SelectValue placeholder="Select asset type" />
+                            </SelectTrigger>
+                            <SelectContent>
                         <SelectItem value="real_estate">Real Estate</SelectItem>
                         <SelectItem value="art">Art</SelectItem>
                         <SelectItem value="collectibles">
                           Collectibles
-                        </SelectItem>
+                              </SelectItem>
                         <SelectItem value="commodities">Commodities</SelectItem>
                         <SelectItem value="equipment">Equipment</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    defaultValue={asset.description}
+                        <Textarea
+                          id="description"
+                          name="description"
+                          defaultValue={asset.description}
                     placeholder="Describe your asset..."
-                    rows={4}
+                          rows={4}
                     className="focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+                        />
+                      </div>
               </CardContent>
             </Card>
 
@@ -271,18 +271,18 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
-                    <Input
-                      id="location"
-                      name="location"
-                      defaultValue={asset.location}
+                          <Input
+                            id="location"
+                            name="location"
+                            defaultValue={asset.location}
                       placeholder="Enter location"
-                      required
+                            required
                       className="focus:ring-green-500 focus:border-green-500"
-                    />
-                  </div>
+                          />
+                        </div>
                   <div className="space-y-2">
                     <Label htmlFor="blockchain">Blockchain Network</Label>
                     <Select name="blockchain" defaultValue={asset.blockchain}>
@@ -317,14 +317,14 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="current_value">Current Value ($)</Label>
-                    <Input
-                      id="current_value"
-                      name="current_value"
-                      type="number"
-                      step="0.01"
-                      defaultValue={asset.current_value}
+                          <Input
+                            id="current_value"
+                            name="current_value"
+                            type="number"
+                            step="0.01"
+                            defaultValue={asset.current_value}
                       placeholder="0.00"
-                      required
+                            required
                       className="focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
@@ -338,19 +338,19 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                       defaultValue={asset.original_value}
                       disabled
                       className="bg-gray-50 text-gray-600"
-                    />
-                    <p className="text-xs text-gray-500">
+                          />
+                          <p className="text-xs text-gray-500">
                       Original value cannot be changed
-                    </p>
-                  </div>
-                </div>
+                          </p>
+                        </div>
+                      </div>
               </CardContent>
             </Card>
-          </div>
+                    </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Action Buttons */}
+                    {/* Action Buttons */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -372,42 +372,42 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                   ) : (
                     <>
                       <Save className="h-4 w-4 mr-2" />
-                      Save Changes
+                        Save Changes
                     </>
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
+                      <Button
+                        type="button"
+                        variant="outline"
                   className="w-full"
                   onClick={() => router.push(`/dashboard/assets/${asset.id}`)}
-                >
+                      >
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-              </CardContent>
-            </Card>
+                          Cancel
+                      </Button>
+                </CardContent>
+              </Card>
 
             {/* Asset Status */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-blue-600" />
+                    <Shield className="h-5 w-5 text-blue-600" />
                   Asset Status
-                </CardTitle>
-              </CardHeader>
+                  </CardTitle>
+                </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Verification</span>
-                  <span
+                    <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      asset.verification_status === "verified"
+                        asset.verification_status === "verified"
                         ? "bg-green-100 text-green-800"
-                        : asset.verification_status === "pending"
+                          : asset.verification_status === "pending"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
-                    }`}
-                  >
+                      }`}
+                    >
                     {asset.verification_status}
                   </span>
                 </div>
@@ -427,8 +427,8 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                   <span className="text-sm font-medium">Network</span>
                   <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 capitalize">
                     {asset.blockchain}
-                  </span>
-                </div>
+                    </span>
+                  </div>
               </CardContent>
             </Card>
 
@@ -457,32 +457,32 @@ export default function EditAssetPage({ params }: { params: { id: string } }) {
                       {new Date(asset.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
             {/* Help */}
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
-              <CardContent className="p-6 text-center">
+                <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="h-6 w-6 text-white" />
-                </div>
+                    <CheckCircle className="h-6 w-6 text-white" />
+                  </div>
                 <h3 className="font-bold mb-2 text-gray-900">Need Help?</h3>
                 <p className="text-sm text-gray-600 mb-4">
                   Contact our support team for assistance with asset management.
-                </p>
-                <Button
-                  variant="outline"
+                  </p>
+                  <Button
+                    variant="outline"
                   size="sm"
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                >
+                  >
                   Get Support
-                </Button>
-              </CardContent>
-            </Card>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
       </form>
-    </div>
+        </div>
   );
 }

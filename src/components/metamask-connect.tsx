@@ -284,6 +284,19 @@ This request will not trigger any blockchain transaction or cost any gas fees.`;
           // Existing user with this wallet - update their session
           console.log("Existing wallet user found, updating session");
 
+          // Ensure profile exists
+          const { error: profileError } = await supabase.rpc(
+            "create_profile_for_user",
+            {
+              user_id: existingUserByWallet.id,
+              user_email: existingUserByWallet.email,
+            }
+          );
+
+          if (profileError) {
+            console.error("Error ensuring profile exists:", profileError);
+          }
+
           const { error: updateError } = await supabase
             .from("users")
             .update({
@@ -376,7 +389,25 @@ This request will not trigger any blockchain transaction or cost any gas fees.`;
         }
 
         if (authData.user) {
-          // Create user profile in our users table
+          // Create profile using the SECURITY DEFINER function
+          const { error: profileError } = await supabase.rpc(
+            "create_profile_for_user",
+            {
+              user_id: authData.user.id,
+              user_email: walletEmail,
+            }
+          );
+
+          if (profileError) {
+            console.error("Error creating profile:", profileError);
+          } else {
+            console.log(
+              "Profile created successfully for wallet user:",
+              authData.user.id
+            );
+          }
+
+          // Create user profile in our users table for backward compatibility
           const { error: insertError } = await supabase.from("users").upsert({
             id: authData.user.id,
             email: walletEmail,
