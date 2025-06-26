@@ -498,7 +498,7 @@ class IPFSService {
             console.error("Failed to get IPFS node info:", error);
             return {
                 connected: false,
-                error: error.message,
+                error: typeof error === "object" && error !== null && "message" in error ? (error as { message: string }).message : String(error),
             };
         }
     }
